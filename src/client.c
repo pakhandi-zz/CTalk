@@ -2,6 +2,12 @@
 
 	Client Side
 
+	The client can :
+	request a list of users who are available to chat
+	connect to a user who is available to chat
+	wait for an incoming connection
+	logout from the server
+
 */
 
 #include<stdio.h>
@@ -10,8 +16,11 @@
 #include<sys/types.h>
 #include<sys/socket.h>
 #include<netinet/in.h>
-#include<arpa/inet.h>
+#include<arpa/inet.h>s 
 
+/*
+	Structure to maintain the list of other users
+*/
 struct maintain
 {
 	int port;
