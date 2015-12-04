@@ -4,15 +4,15 @@
 
 */
 
-#include<stdio.h>
-#include<string.h>
-#include<sys/stat.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<netinet/in.h>
-#include<arpa/inet.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <pthread.h>
-#include<math.h>
+#include <math.h>
 
 pthread_t tid[10];
 

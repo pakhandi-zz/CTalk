@@ -10,13 +10,19 @@
 
 */
 
-#include<stdio.h>
-#include<string.h>
-#include<sys/stat.h>
-#include<sys/types.h>
-#include<sys/socket.h>
-#include<netinet/in.h>
-#include<arpa/inet.h>s 
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define request "request"
+#define logout "logout"
+#define connect "connect"
+#define wait "wait"
+#define kill "kill"
 
 /*
 	Structure to maintain the list of other users
@@ -42,7 +48,6 @@ main()
     server.sin_port=15515;
     server.sin_addr.s_addr=inet_addr("127.0.0.1");
 
-
     printf("\nClient side has been setup successfully...\n");
 
     n=sizeof(server);
@@ -51,13 +56,6 @@ main()
 
     if(status==-1)
 		return 1;
-
-	char request[100], logout[100], connect[100], wait[100], kill[100];
-	strcpy(request,"request");
-	strcpy(logout,"logout");
-	strcpy(connect, "connect");
-	strcpy(wait,"wait");
-	strcpy(kill,"kill");
 
 	while(1)
 	{
@@ -141,6 +139,5 @@ main()
 	}
 
 	close(s);
-
     return 0;
 }
