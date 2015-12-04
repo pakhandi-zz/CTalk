@@ -20,7 +20,7 @@
 
 #define request "request"
 #define logout "logout"
-#define connect "connect"
+#define conct "connect"
 #define wait "wait"
 #define kill "kill"
 
@@ -84,7 +84,7 @@ main()
 		}
 		else if(dec==2)
 		{
-			send(s,&connect,sizeof(connect),0);
+			send(s,&connect,sizeof(conct),0);
 			int conn;
 			printf("Enter the id of client you want to connect to : ");
 			scanf("%d", &conn);
