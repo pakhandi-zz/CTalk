@@ -23,6 +23,7 @@
 #define conct "connect"
 #define wait "wait"
 #define kill "kill"
+#define die "die"
 
 /*
 	Structure to maintain the list of other users
@@ -35,18 +36,65 @@ struct maintain
 
 int ind = 0;	//index pointer for the list of other users
 
+int s,n;
+
+char rec_buffer[100],send_buffer[100];
+
+pthread_t tid1, tid2;
+
+void * foo()
+{
+	while(1)
+	{
+		recv(s,&rec_buffer,sizeof(rec_buffer),MSG_PEEK);
+		if(strlen(rec_buffer) == 0)
+			continue;
+		recv(s,&rec_buffer,sizeof(rec_buffer),0);
+		if(strcmp(rec_buffer,"end")==0)
+		{
+			send(s,&die,sizeof(die),0);
+
+			if(pthread_cancel(tid2) == 0)
+				printf("foo cancelled poo");
+			else
+				printf("foo failed");
+			printf("\n");
+			exit(0);
+		}
+		printf("Reply > %s\n",rec_buffer);
+	}
+}
+
+void * poo()
+{
+	while(1)
+	{
+		printf("Enter the message to be sent : ");
+		scanf("%s", send_buffer);
+		send(s,&send_buffer,sizeof(send_buffer),0);
+		if(strcmp(send_buffer,"end")==0)
+		{
+			if(pthread_cancel(tid1) == 0)
+				printf("poo cancelled foo");
+			else
+				printf("poo failed");
+			printf("\n");
+			exit(0);
+		}
+	}
+	
+}
+
 main()
 {
     struct sockaddr_in client,server;
 
-    int s,n;
-
-    char rec_buffer[100],send_buffer[100];
+    
 
     //setting up the connection variables
     s=socket(AF_INET,SOCK_STREAM,0);
     server.sin_family=AF_INET;
-    server.sin_port=15515;
+    server.sin_port=15518;
     server.sin_addr.s_addr=inet_addr("127.0.0.1");
 
     printf("\nClient side has been setup successfully...\n");
@@ -61,6 +109,8 @@ main()
     	printf("Connection failure\n");
 		return 1;
     }
+
+    
 
 	while(1)
 	{
@@ -91,7 +141,7 @@ main()
 		}
 		else if(dec==2)		//connecting to an online user
 		{
-			send(s,&connect,sizeof(conct),0);
+			send(s,&conct,sizeof(conct),0);
 			printf("Enter the id of client you want to connect to : ");
 
 			int conn;
@@ -101,21 +151,16 @@ main()
 			send(s,&list[conn].ip,sizeof(list[conn].ip),0);
 			send(s,&list[conn].port,sizeof(list[conn].port),0);
 
-			while(1)	//chatting
-			{
-				printf("Enter the message to be sent : ");
-				scanf("%s", send_buffer);
-				send(s,&send_buffer,sizeof(send_buffer),0);
-				if(strcmp(send_buffer,"die")==0)
-					break;
-				recv(s,&rec_buffer,sizeof(rec_buffer),0);
-				if(strcmp(rec_buffer,"die")==0)
-				{
-					send(s,&kill,sizeof(kill),0);
-					break;
-				}
-				printf("Reply > %s\n",rec_buffer);
-			}
+			
+			pthread_create(&tid1, NULL, foo, NULL);
+			pthread_create(&tid2, NULL, poo, NULL);
+			
+			if(pthread_join(tid1) != 0)
+				printf("pthread_join 1 error");
+			if(pthread_join(tid2) != 0)
+				printf("pthread_join 2 error");
+
+			//pthread_exit(NULL);
 		}
 		else if(dec==3)		//go online
 		{
@@ -126,21 +171,16 @@ main()
 			recv(s,&conn,sizeof(conn),0);
 			printf("Got a chat request\n");
 			send(s,&conn,sizeof(conn),0);
-			while(1)
-			{
-				recv(s,&rec_buffer,sizeof(rec_buffer),0);
-				if(strcmp(rec_buffer,"die")==0)
-				{
-					send(s,&kill,sizeof(kill),0);
-					break;
-				}
-				printf("Reply > %s\n",rec_buffer);
-				printf("Enter the message to be sent : ");
-				scanf("%s", send_buffer);
-				send(s,&send_buffer,sizeof(send_buffer),0);
-				if(strcmp(send_buffer,"die")==0)
-					break;
-			}
+
+			pthread_create(&tid1, NULL, foo, NULL);
+			pthread_create(&tid2, NULL, poo, NULL);
+			
+			if(pthread_join(tid1) != 0)
+				printf("pthread_join 1 error");
+			if(pthread_join(tid2) != 0)
+				printf("pthread_join 2 error");
+
+			//pthread_exit(NULL);
 		}
 		else if(dec==4)	//logout from the server
 		{

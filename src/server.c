@@ -99,10 +99,12 @@ void *foo(void * n_s)
 					while(1)
 					{
 						recv(new_socket,&rec_buffer,sizeof(rec_buffer), 0);
-						if(strcmp(rec_buffer,"kill")==0)
-							break;
-						send(this_socket,&rec_buffer,sizeof(rec_buffer),0);
+						printf("Recvd : %s\n", rec_buffer);
 						if(strcmp(rec_buffer,"die")==0)
+							break;
+						printf("Sent : %s\n", rec_buffer);
+						send(this_socket,&rec_buffer,sizeof(rec_buffer),0);
+						if(strcmp(rec_buffer,"end")==0)
 							break;
 					}
 
@@ -129,10 +131,12 @@ void *foo(void * n_s)
 					while(1)
 					{
 						recv(new_socket,&rec_buffer,sizeof(rec_buffer), 0);
-						if(strcmp(rec_buffer,"kill")==0)
-							break;
-						send(this_socket,&rec_buffer,sizeof(rec_buffer),0);
+						printf("Recvd : %s\n", rec_buffer);
 						if(strcmp(rec_buffer,"die")==0)
+							break;
+						printf("Sent : %s\n", rec_buffer);
+						send(this_socket,&rec_buffer,sizeof(rec_buffer),0);
+						if(strcmp(rec_buffer,"end")==0)
 							break;
 					}
 
@@ -141,7 +145,7 @@ void *foo(void * n_s)
 					printf("Chat was closed at the wait side\n");
 
 				}
-				else
+				else //if(strcmp(rec_buffer,"logout") == 0)
 				{
 					printf("\nAT : %s %d\n", o.ip_ad, o.port);
 					printf("Closing connection and removing from the list\n");
@@ -162,7 +166,7 @@ main()
 
     s=socket(AF_INET,SOCK_STREAM,0);
     server.sin_family=AF_INET;
-    server.sin_port=15515;
+    server.sin_port=15518;
     server.sin_addr.s_addr=inet_addr("127.0.0.1");
 
     if ( bind(s,(struct sockaddr *)&server,sizeof(server)) == -1 )
