@@ -52,14 +52,17 @@ void * foo()
 		recv(s,&rec_buffer,sizeof(rec_buffer),0);
 		if(strcmp(rec_buffer,"end")==0)
 		{
-			send(s,&die,sizeof(die),0);
+			strcpy(send_buffer,die);
+			send(s,&send_buffer,sizeof(send_buffer),0);
+
+			memset(send_buffer,0,sizeof(send_buffer));
 
 			if(pthread_cancel(tid2) == 0)
 				printf("foo cancelled poo");
 			else
 				printf("foo failed");
 			printf("\n");
-			exit(0);
+			_exit(0);
 		}
 		printf("Reply > %s\n",rec_buffer);
 	}
@@ -79,17 +82,15 @@ void * poo()
 			else
 				printf("poo failed");
 			printf("\n");
-			exit(0);
+			memset(send_buffer,0,sizeof(send_buffer));
+			_exit(0);
 		}
 	}
-	
 }
 
 main()
 {
     struct sockaddr_in client,server;
-
-    
 
     //setting up the connection variables
     s=socket(AF_INET,SOCK_STREAM,0);
@@ -101,7 +102,7 @@ main()
 
     n=sizeof(server);
     
-    //connectinf to the server
+    //connecting to the server
     int status = connect(s,(struct sockaddr *)&server,n);
 
     if(status == -1)
@@ -109,8 +110,6 @@ main()
     	printf("Connection failure\n");
 		return 1;
     }
-
-    
 
 	while(1)
 	{
@@ -160,7 +159,10 @@ main()
 			if(pthread_join(tid2) != 0)
 				printf("pthread_join 2 error");
 
-			//pthread_exit(NULL);
+			if(pthread_exit(NULL)!=0)
+				printf("error in exit 1");
+			else
+				printf("bye");
 		}
 		else if(dec==3)		//go online
 		{
@@ -180,7 +182,10 @@ main()
 			if(pthread_join(tid2) != 0)
 				printf("pthread_join 2 error");
 
-			//pthread_exit(NULL);
+			if(pthread_exit(NULL)!=0)
+				printf("error in exit 2");
+			else
+				printf("bye");
 		}
 		else if(dec==4)	//logout from the server
 		{

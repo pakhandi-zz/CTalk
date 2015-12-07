@@ -41,7 +41,7 @@ void *foo(void * n_s)
 			while(1)
 			{
 				printf("\nWaiting for : %s %d\n", o.ip_ad, o.port);
-
+				memset(rec_buffer,0,sizeof(rec_buffer));
 				recv(new_socket,&rec_buffer,sizeof(rec_buffer), 0);
 
 				printf("\nProccessing request from : %s %d\n", o.ip_ad, o.port);
