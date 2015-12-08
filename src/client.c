@@ -35,13 +35,10 @@ struct maintain
 }list [100];
 
 int ind = 0;	//index pointer for the list of other users
-
 int s, n;
-
-int *ptr[2];
-
 char rec_buffer[100],send_buffer[100];
 
+int *ptr[2];
 pthread_t tid[2];
 
 void * foo()
@@ -90,6 +87,26 @@ void * poo()
 	}
 }
 
+void update_list()
+{
+	send(s,&request,sizeof(request),0);
+	int num;
+	recv(s,&num,sizeof(num),0);
+	
+	ind = 0;
+	
+	while(num--)
+	{
+		char ip[100]; int port;
+		recv(s,&ip,sizeof(ip),0);
+		recv(s,&port,sizeof(port),0);
+		strcpy(list[ind].ip,ip);
+		list[ind].port = port;
+		printf("%d ---> %s %d\n", ind, ip, port);
+		ind++;
+	}
+}
+
 main()
 {
     struct sockaddr_in client,server;
@@ -123,31 +140,23 @@ main()
 
 		if(dec == 1)	//requesting for a list of users
 		{
-			send(s,&request,sizeof(request),0);
-			int num;
-			recv(s,&num,sizeof(num),0);
-			
-			ind = 0;
-			
-			while(num--)
-			{
-				char ip[100]; int port;
-				recv(s,&ip,sizeof(ip),0);
-				recv(s,&port,sizeof(port),0);
-				strcpy(list[ind].ip,ip);
-				list[ind].port = port;
-				printf("%d ---> %s %d\n", ind, ip, port);
-				ind++;
-			}
-			
+			update_list();
 		}
 		else if(dec==2)		//connecting to an online user
 		{
+			update_list();
+			
 			send(s,&conct,sizeof(conct),0);
 			printf("Enter the id of client you want to connect to : ");
 
 			int conn;
 			scanf("%d", &conn);
+
+			if(conn >= ind)
+			{
+				printf("The client ID is wrong\n");
+				continue;
+			}
 
 			//sending server the info of the client we want to connect to
 			send(s,&list[conn].ip,sizeof(list[conn].ip),0);
@@ -184,10 +193,13 @@ main()
 		{
 			send(s,&logout,sizeof(logout),0);
 			close(s);
-			return 0;
+			break;
+		}
+		else
+		{
+			printf("Wrong choice\n");
 		}
 	}
 
-	close(s);
     return 0;
 }
