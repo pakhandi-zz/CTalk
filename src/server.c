@@ -99,10 +99,10 @@ void *foo(void * n_s)
 					while(1)
 					{
 						recv(new_socket,&rec_buffer,sizeof(rec_buffer), 0);
-						printf("Recvd : %s\n", rec_buffer);
+
 						if(strcmp(rec_buffer,"die")==0)
 							break;
-						printf("Sent : %s\n", rec_buffer);
+
 						send(this_socket,&rec_buffer,sizeof(rec_buffer),0);
 						if(strcmp(rec_buffer,"end")==0)
 							break;
@@ -131,10 +131,10 @@ void *foo(void * n_s)
 					while(1)
 					{
 						recv(new_socket,&rec_buffer,sizeof(rec_buffer), 0);
-						printf("Recvd : %s\n", rec_buffer);
+
 						if(strcmp(rec_buffer,"die")==0)
 							break;
-						printf("Sent : %s\n", rec_buffer);
+
 						send(this_socket,&rec_buffer,sizeof(rec_buffer),0);
 						if(strcmp(rec_buffer,"end")==0)
 							break;
@@ -145,12 +145,20 @@ void *foo(void * n_s)
 					printf("Chat was closed at the wait side\n");
 
 				}
-				else //if(strcmp(rec_buffer,"logout") == 0)
+				else if(strcmp(rec_buffer,"logout") == 0)
 				{
 					printf("\nAT : %s %d\n", o.ip_ad, o.port);
 					printf("Closing connection and removing from the list\n");
 					close(new_socket);
 					
+					return 0;
+				}
+				else
+				{
+					printf("Something Wrong here\n");
+					printf("\nAT : %s %d\n", o.ip_ad, o.port);
+					printf("Closing connection and removing from the list\n");
+					close(new_socket);
 					return 0;
 				}
 			}

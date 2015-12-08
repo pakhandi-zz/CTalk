@@ -36,11 +36,13 @@ struct maintain
 
 int ind = 0;	//index pointer for the list of other users
 
-int s,n;
+int s, n;
+
+int *ptr[2];
 
 char rec_buffer[100],send_buffer[100];
 
-pthread_t tid1, tid2;
+pthread_t tid[2];
 
 void * foo()
 {
@@ -55,14 +57,13 @@ void * foo()
 			strcpy(send_buffer,die);
 			send(s,&send_buffer,sizeof(send_buffer),0);
 
-			memset(send_buffer,0,sizeof(send_buffer));
-
-			if(pthread_cancel(tid2) == 0)
+			if(pthread_cancel(tid[1]) == 0)
 				printf("foo cancelled poo");
 			else
 				printf("foo failed");
 			printf("\n");
-			_exit(0);
+			int ret = 0;
+			pthread_exit(&ret);
 		}
 		printf("Reply > %s\n",rec_buffer);
 	}
@@ -77,13 +78,14 @@ void * poo()
 		send(s,&send_buffer,sizeof(send_buffer),0);
 		if(strcmp(send_buffer,"end")==0)
 		{
-			if(pthread_cancel(tid1) == 0)
+			if(pthread_cancel(tid[0]) == 0)
 				printf("poo cancelled foo");
 			else
 				printf("poo failed");
 			printf("\n");
 			memset(send_buffer,0,sizeof(send_buffer));
-			_exit(0);
+			int ret = 0;
+			pthread_exit(&ret);
 		}
 	}
 }
@@ -92,6 +94,7 @@ main()
 {
     struct sockaddr_in client,server;
 
+    
     //setting up the connection variables
     s=socket(AF_INET,SOCK_STREAM,0);
     server.sin_family=AF_INET;
@@ -151,18 +154,13 @@ main()
 			send(s,&list[conn].port,sizeof(list[conn].port),0);
 
 			
-			pthread_create(&tid1, NULL, foo, NULL);
-			pthread_create(&tid2, NULL, poo, NULL);
+			pthread_create(&tid[0], NULL, foo, NULL);
+			pthread_create(&tid[1], NULL, poo, NULL);
 			
-			if(pthread_join(tid1) != 0)
+			if(pthread_join(tid[0],(void**)&(ptr[0])) != 0)
 				printf("pthread_join 1 error");
-			if(pthread_join(tid2) != 0)
+			if(pthread_join(tid[1],(void**)&(ptr[0])) != 0)
 				printf("pthread_join 2 error");
-
-			if(pthread_exit(NULL)!=0)
-				printf("error in exit 1");
-			else
-				printf("bye");
 		}
 		else if(dec==3)		//go online
 		{
@@ -174,18 +172,13 @@ main()
 			printf("Got a chat request\n");
 			send(s,&conn,sizeof(conn),0);
 
-			pthread_create(&tid1, NULL, foo, NULL);
-			pthread_create(&tid2, NULL, poo, NULL);
+			pthread_create(&tid[0], NULL, foo, NULL);
+			pthread_create(&tid[1], NULL, poo, NULL);
 			
-			if(pthread_join(tid1) != 0)
+			if(pthread_join(tid[0],(void**)&(ptr[0])) != 0)
 				printf("pthread_join 1 error");
-			if(pthread_join(tid2) != 0)
+			if(pthread_join(tid[1],(void**)&(ptr[0])) != 0)
 				printf("pthread_join 2 error");
-
-			if(pthread_exit(NULL)!=0)
-				printf("error in exit 2");
-			else
-				printf("bye");
 		}
 		else if(dec==4)	//logout from the server
 		{
