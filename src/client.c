@@ -1,12 +1,15 @@
 /*
+	Author : pakhandi
+	Repository : CTalk
+
+	TCP chat system
 
 	Client Side
-
 	The client can :
-	request a list of users who are available to chat
-	connect to a user who is available to chat
-	wait for an incoming connection
-	logout from the server
+	> request a list of users who are available to chat
+	> connect to a user who is available to chat
+	> wait for an incoming connection
+	> logout from the server
 
 */
 
@@ -41,24 +44,34 @@ char rec_buffer[100],send_buffer[100];
 int *ptr[2];
 pthread_t tid[2];
 
-void * foo()
+//Function to keep receiving the messages from server
+void * keep_receiving()
 {
 	while(1)
 	{
+		//Check if there is a message in the buffer
 		recv(s,&rec_buffer,sizeof(rec_buffer),MSG_PEEK);
 		if(strlen(rec_buffer) == 0)
 			continue;
+
+		//Get the message in the buffer
 		recv(s,&rec_buffer,sizeof(rec_buffer),0);
+
+		//If the message is "end"
 		if(strcmp(rec_buffer,"end")==0)
 		{
+			//Ask the server to close this chat session
 			strcpy(send_buffer,die);
 			send(s,&send_buffer,sizeof(send_buffer),0);
 
+			//Cancel the keep_sending thread
 			if(pthread_cancel(tid[1]) == 0)
-				printf("foo cancelled poo");
+				printf("keep_receiving cancelled keep_sending");
 			else
-				printf("foo failed");
+				printf("keep_receiving failed");
 			printf("\n");
+
+			//Exit this thread
 			int ret = 0;
 			pthread_exit(&ret);
 		}
@@ -66,20 +79,29 @@ void * foo()
 	}
 }
 
-void * poo()
+//Function to keep sending message to server
+void * keep_sending()
 {
 	while(1)
 	{
-		printf("Enter the message to be sent : ");
+		//Wait for user input
+		printf("> : ");
 		scanf("%s", send_buffer);
+
+		//Ask the server to forward the message to other client
 		send(s,&send_buffer,sizeof(send_buffer),0);
+
+		//If the chat has to be ended
 		if(strcmp(send_buffer,"end")==0)
 		{
+			//Cancel the keep_receiving thread
 			if(pthread_cancel(tid[0]) == 0)
-				printf("poo cancelled foo");
+				printf("keep_sending cancelled keep_receiving");
 			else
-				printf("poo failed");
+				printf("keep_sending failed");
 			printf("\n");
+
+			//Exit this thread
 			memset(send_buffer,0,sizeof(send_buffer));
 			int ret = 0;
 			pthread_exit(&ret);
@@ -87,6 +109,7 @@ void * poo()
 	}
 }
 
+//Function to update the list of online users
 void update_list()
 {
 	send(s,&request,sizeof(request),0);
@@ -95,6 +118,8 @@ void update_list()
 	
 	ind = 0;
 	
+	//Updating the list of online users
+	printf("ID ---> ______IP______ : PORT\n");
 	while(num--)
 	{
 		char ip[100]; int port;
@@ -102,7 +127,7 @@ void update_list()
 		recv(s,&port,sizeof(port),0);
 		strcpy(list[ind].ip,ip);
 		list[ind].port = port;
-		printf("%d ---> %s %d\n", ind, ip, port);
+		printf("%d  ---> %-15s : %d\n", ind, ip, port);
 		ind++;
 	}
 }
@@ -133,7 +158,7 @@ main()
 
 	while(1)
 	{
-		printf("1> Get the list of clients\n2> Connect to a client\n3> Wait for connection\n4> Logout\n\n");
+		printf("\n\n1> Get the list of clients\n2> Connect to a client\n3> Wait for connection\n4> Logout\n\n");
 		
 		int dec;
 		scanf("%d", &dec);
@@ -163,8 +188,8 @@ main()
 			send(s,&list[conn].port,sizeof(list[conn].port),0);
 
 			
-			pthread_create(&tid[0], NULL, foo, NULL);
-			pthread_create(&tid[1], NULL, poo, NULL);
+			pthread_create(&tid[0], NULL, keep_receiving, NULL);
+			pthread_create(&tid[1], NULL, keep_sending, NULL);
 			
 			if(pthread_join(tid[0],(void**)&(ptr[0])) != 0)
 				printf("pthread_join 1 error");
@@ -181,8 +206,8 @@ main()
 			printf("Got a chat request\n");
 			send(s,&conn,sizeof(conn),0);
 
-			pthread_create(&tid[0], NULL, foo, NULL);
-			pthread_create(&tid[1], NULL, poo, NULL);
+			pthread_create(&tid[0], NULL, keep_receiving, NULL);
+			pthread_create(&tid[1], NULL, keep_sending, NULL);
 			
 			if(pthread_join(tid[0],(void**)&(ptr[0])) != 0)
 				printf("pthread_join 1 error");
