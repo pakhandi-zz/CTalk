@@ -191,28 +191,28 @@ void *foo(void * n_s)
 
 main()
 {
-    struct sockaddr_in client,server;
+	struct sockaddr_in client,server;
 
-    int n, s;
+	int n, s;
 
-    char rec_buffer[100], send_buffer[100];
+	char rec_buffer[100], send_buffer[100];
 
-    s = socket( AF_INET, SOCK_STREAM, 0 );
-    server.sin_family = AF_INET;
-    server.sin_port = 15518;
-    server.sin_addr.s_addr = inet_addr("127.0.0.1");
+	s = socket( AF_INET, SOCK_STREAM, 0 );
+	server.sin_family = AF_INET;
+	server.sin_port = 15518;
+	server.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-    if ( bind( s, (struct sockaddr *)&server, sizeof(server) ) == -1 )
+	if ( bind( s, (struct sockaddr *)&server, sizeof(server) ) == -1 )
 	{
 		printf("Binding failed..\n");
 		return 1;
 	}
 
-    printf("\nServer was started successfully.. waiting for response from client...\n");
+	printf("\nServer was started successfully.. waiting for response from client...\n");
 
-    n = sizeof(client);
+	n = sizeof(client);
 
-    int status = listen( s, 2 );
+	int status = listen( s, 2 );
 
 	struct user obj;
 
@@ -234,5 +234,5 @@ main()
 
 	close(s);
 
-    return 0;
+	return 0;
 }

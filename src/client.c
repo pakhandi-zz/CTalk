@@ -134,27 +134,27 @@ void update_list()
 
 main()
 {
-    struct sockaddr_in client,server;
+	struct sockaddr_in client,server;
 
-    
-    //setting up the connection variables
-    s=socket(AF_INET,SOCK_STREAM,0);
-    server.sin_family=AF_INET;
-    server.sin_port=15518;
-    server.sin_addr.s_addr=inet_addr("127.0.0.1");
+	
+	//setting up the connection variables
+	s=socket(AF_INET,SOCK_STREAM,0);
+	server.sin_family=AF_INET;
+	server.sin_port=15518;
+	server.sin_addr.s_addr=inet_addr("127.0.0.1");
 
-    printf("\nClient side has been setup successfully...\n");
+	printf("\nClient side has been setup successfully...\n");
 
-    n=sizeof(server);
-    
-    //connecting to the server
-    int status = connect(s,(struct sockaddr *)&server,n);
+	n=sizeof(server);
+	
+	//connecting to the server
+	int status = connect(s,(struct sockaddr *)&server,n);
 
-    if(status == -1)
-    {
-    	printf("Connection failure\n");
+	if(status == -1)
+	{
+		printf("Connection failure\n");
 		return 1;
-    }
+	}
 
 	while(1)
 	{
@@ -226,5 +226,5 @@ main()
 		}
 	}
 
-    return 0;
+	return 0;
 }
