@@ -172,7 +172,7 @@ main()
 			update_list();
 			
 			send(s,&conct,sizeof(conct),0);
-			printf("Enter the id of client you want to connect to : ");
+			printf("\n\nEnter the id of client you want to connect to : ");
 
 			int conn;
 			scanf("%d", &conn);

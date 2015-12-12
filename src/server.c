@@ -43,18 +43,18 @@ void *foo(void * n_s)
 
 	while(1)
 	{
-		printf("\nWaiting for : %s %d\n", o.ip, o.port);
+		printf("\nSERVER : Waiting for : %s %d\n", o.ip, o.port);
 		memset( rec_buffer, 0, sizeof(rec_buffer) );
 		recv( new_socket, &rec_buffer, sizeof(rec_buffer), 0 );
 
-		printf("\nProccessing request from : %s %d\n", o.ip, o.port);
+		printf("\nSERVER : Proccessing request from : %s %d\n", o.ip, o.port);
 		printf("%s\n", rec_buffer);
 
 		//Client asked for a list of online users
 		if( strcmp( rec_buffer, "request" ) == 0 )
 		{
-			printf("\nAT : %s %d\n", o.ip, o.port);
-			printf("Size of the list : %d\n", ind);
+			printf("\nSERVER : AT : %s %d\n", o.ip, o.port);
+			printf("SERVER : Size of the list : %d\n", ind);
 
 			//Send the size of list
 			send( new_socket, &ind, sizeof(ind), 0 );
@@ -75,7 +75,7 @@ void *foo(void * n_s)
 		//Client asked to connect to another client (target_client)
 		else if( strcmp(rec_buffer,"connect") == 0 )
 		{
-			printf("\nAT : %s %d\n", o.ip, o.port);
+			printf("\nSERVER : AT : %s %d\n", o.ip, o.port);
 			char rec_ip[100]; int rec_port;
 
 			//Get the ip and port of the target client
@@ -108,8 +108,8 @@ void *foo(void * n_s)
 			//Send target_client details of this client
 			send( this_socket, &new_socket, sizeof(new_socket), 0 );
 
-			printf("\nAT : %s %d\n", o.ip, o.port);
-			printf("Starting chat at the connect side\n");
+			printf("\nSERVER : AT : %s %d\n", o.ip, o.port);
+			printf("SERVER : Starting chat at the connect side\n");
 
 			//Chatting
 			while(1)
@@ -124,16 +124,16 @@ void *foo(void * n_s)
 					break;
 			}
 
-			printf("\nAT : %s %d\n", o.ip, o.port);
+			printf("\nSERVER : AT : %s %d\n", o.ip, o.port);
 
-			printf("chat was closed at the connect side\n");
+			printf("SERVER : chat was closed at the connect side\n");
 
 		}
 		//Client wants to wait for an incoming connection
 		//This Client goes online
 		else if( strcmp(rec_buffer,"wait") == 0 )
 		{
-			printf("\nAT : %s %d\n", o.ip, o.port);
+			printf("\nSERVER : AT : %s %d\n", o.ip, o.port);
 
 			//Add this client to online list
 			strcpy(list[ind].ip, o.ip);
@@ -143,13 +143,13 @@ void *foo(void * n_s)
 
 			char this_ip;
 			int this_port, this_socket;
-			printf("Waiting for a chat request\n");
+			printf("SERVER : Waiting for a chat request\n");
 			
 			//Client informed it's server instance about the client who is
 			//trying to chat
 			recv( new_socket, &this_socket, sizeof(this_socket), 0 );
-			printf("\nAT : %s %d\n", o.ip, o.port);
-			printf("Got a chat request\n");
+			printf("\nSERVER : AT : %s %d\n", o.ip, o.port);
+			printf("SERVER : Got a chat request\n");
 
 			//Chatting
 			while(1)
@@ -164,25 +164,25 @@ void *foo(void * n_s)
 					break;
 			}
 
-			printf("\nAT : %s %d\n", o.ip, o.port);
+			printf("\nSERVER : AT : %s %d\n", o.ip, o.port);
 
-			printf("Chat was closed at the wait side\n");
+			printf("SERVER : Chat was closed at the wait side\n");
 
 		}
 		//Client wants to logout from the server
 		else if(strcmp(rec_buffer,"logout") == 0)
 		{
-			printf("\nAT : %s %d\n", o.ip, o.port);
-			printf("Closing connection and removing from the list\n");
+			printf("\nSERVER : AT : %s %d\n", o.ip, o.port);
+			printf("SERVER : Closing connection and removing from the list\n");
 			close(new_socket);
 			return 0;
 		}
 		//In case of some garbage message
 		else
 		{
-			printf("Something Wrong here\n");
-			printf("\nAT : %s %d\n", o.ip, o.port);
-			printf("Closing connection and removing from the list\n");
+			printf("SERVER : Something Wrong here\n");
+			printf("\nSERVER : AT : %s %d\n", o.ip, o.port);
+			printf("SERVER : Closing connection and removing from the list\n");
 			close(new_socket);
 			return 0;
 		}
@@ -220,7 +220,7 @@ main()
 	{
 		//Wait for a new connection
 		int new_socket = accept(s,(struct sockaddr *)&client,&n);
-		printf("Got a new connection from -- %s %d\n\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
+		printf("SERVER : Got a new connection from -- %s %d\n\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
 		
 		//Create a new thread for handling this new client
 		obj.socket = new_socket;
@@ -228,7 +228,6 @@ main()
 		strcpy(obj.ip,inet_ntoa(client.sin_addr));
 
 		pthread_create( &(tid[tind]), NULL, foo, (void *)&obj );
-
 		tind++;
 	}
 
